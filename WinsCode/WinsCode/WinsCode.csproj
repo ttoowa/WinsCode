@@ -72,6 +72,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="LiveShare\Memo.cs" />
+    <Compile Include="Script\PluginSupports\PluginDefinition.cs" />
     <Compile Include="Views\Windows\TerminalWindow.xaml.cs">
       <DependentUpon>TerminalWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
