@@ -5,5 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace WinsCode.Plugins {
-	
+    public interface IPluginEventHandler {
+        void handleReadLine(string sLine);
+    }
 }
