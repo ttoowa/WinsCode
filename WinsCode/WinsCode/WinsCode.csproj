@@ -73,6 +73,8 @@
     </Compile>
     <Compile Include="LiveShare\Memo.cs" />
     <Compile Include="Script\PluginSupports\PluginDefinition.cs" />
+    <Compile Include="Script\PluginSupports\PluginManager.cs" />
+    <Compile Include="Script\Plugins\TestPlugin.cs" />
     <Compile Include="Views\Windows\TerminalWindow.xaml.cs">
       <DependentUpon>TerminalWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -113,9 +115,7 @@
   <ItemGroup>
     <Resource Include="Resources\Images\Logo.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Script\Plugins\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.4.0.2\build\Fody.targets" Condition="Exists('..\packages\Fody.4.0.2\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
