@@ -30,6 +30,8 @@ namespace WinsCode {
 			Width = 1920d;
 
 			OutputText.Text = "결과 출력 디스플레이\nExecute...\n존-새 밥오.";
+
+			//
 		}
 	}
 }

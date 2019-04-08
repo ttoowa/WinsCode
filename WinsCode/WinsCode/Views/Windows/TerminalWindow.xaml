@@ -31,9 +31,10 @@
 		</Style>
 	</Window.Resources>
 	<DockPanel>
-		<Grid DockPanel.Dock="Top" Background="#FF28363C">
+		<DockPanel DockPanel.Dock="Top" Background="#FF28363C">
+			<TextBlock Text=""
 			<TextBox Name="InputText" Height="35" Margin="4" Background="#FF1D272C" BorderThickness="0" BorderBrush="{x:Null}" Foreground="#FF14FFF8" SelectionBrush="{x:Null}" FontFamily="/WinsCode;component/Resources/Fonts/#D2Coding" Text="IPConfig" VerticalContentAlignment="Center" FontSize="16" Padding="4" TextOptions.TextHintingMode="Fixed"/>
-		</Grid>
+		</DockPanel>
 		<Border DockPanel.Dock="Top" Height="4" Background="#FF101415"></Border>
 		<TextBlock Name="OutputText" DockPanel.Dock="Bottom" Padding="8,4,8,0" Text="결과 출력 디스플레이" FontFamily="/WinsCode;component/Resources/Fonts/#D2Coding" Foreground="#FF9C9C9C" FontSize="14" TextOptions.TextHintingMode="Fixed">
 			<TextBlock.Background>
