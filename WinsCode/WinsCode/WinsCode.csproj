@@ -43,6 +43,9 @@
     <Reference Include="Costura, Version=3.3.3.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
       <HintPath>..\packages\Costura.Fody.3.3.3\lib\net40\Costura.dll</HintPath>
     </Reference>
+    <Reference Include="GKit">
+      <HintPath>..\Dependency\GKit.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -72,7 +75,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="LiveShare\Memo.cs" />
+    <Compile Include="Script\CMDProcess\CMDProcess.cs" />
     <Compile Include="Script\PluginSupports\PluginDefinition.cs" />
+    <Compile Include="Script\Root.cs" />
     <Compile Include="Script\PluginSupports\PluginManager.cs" />
     <Compile Include="Script\Plugins\TestPlugin.cs" />
     <Compile Include="Views\Windows\TerminalWindow.xaml.cs">

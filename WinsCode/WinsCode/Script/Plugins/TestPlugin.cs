@@ -11,12 +11,12 @@ namespace WinsCode.Plugins {
 
         public override PluginVersion Version => new PluginVersion(1, 0, 0, 1);
 
-        public override void finalize(Instance instance) {
-            instance.writeLine(string.Format("Finalizing {0} v{1}...", Name, Version));
+        public override void finalize(TerminalWindow instance) {
+            instance.WriteLine(string.Format("Finalizing {0} v{1}...", Name, Version));
         }
 
-        public override bool initialize(Instance instance) {
-            instance.writeLine(string.Format("Initializing {0} v{1}...", Name, Version));
+        public override bool initialize(TerminalWindow instance) {
+            instance.WriteLine(string.Format("Initializing {0} v{1}...", Name, Version));
 
             return true;
         }

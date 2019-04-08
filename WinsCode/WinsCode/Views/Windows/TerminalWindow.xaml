@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WinsCode" 
         mc:Ignorable="d"
-        Title="WinsCode Terminal" Width="1280" Height="250" Icon="/WinsCode;component/Resources/Images/Logo.png" ResizeMode="NoResize" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}">
+        Title="WinsCode Terminal" Width="300" Height="250" Icon="/WinsCode;component/Resources/Images/Logo.png" ResizeMode="NoResize" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}">
 	<Window.Resources>
 		<Style TargetType="TextBox">
 			<Setter Property="Template">
@@ -31,19 +31,25 @@
 		</Style>
 	</Window.Resources>
 	<DockPanel>
-		<DockPanel DockPanel.Dock="Top" Background="#FF28363C">
-			<TextBlock Text=""
-			<TextBox Name="InputText" Height="35" Margin="4" Background="#FF1D272C" BorderThickness="0" BorderBrush="{x:Null}" Foreground="#FF14FFF8" SelectionBrush="{x:Null}" FontFamily="/WinsCode;component/Resources/Fonts/#D2Coding" Text="IPConfig" VerticalContentAlignment="Center" FontSize="16" Padding="4" TextOptions.TextHintingMode="Fixed"/>
-		</DockPanel>
+		<Grid DockPanel.Dock="Top" Background="#FF28363C">
+			<DockPanel Margin="4" Background="#FF1D272C">
+				<TextBox Name="WorkingDirTextView" Text="C:\실행경로>" BorderThickness="0" FontFamily="/WinsCode;component/Resources/Fonts/#D2Coding" Foreground="#FF0D8D89" FontSize="16" VerticalAlignment="Center" Margin="8,0,0,0" Background="{x:Null}" BorderBrush="{x:Null}" SelectionBrush="#B2006287" IsReadOnly="True"></TextBox>
+				<TextBox Name="InputTextView" Height="35" BorderThickness="0" BorderBrush="{x:Null}" Foreground="#FF14FFF8" SelectionBrush="#B2006287" FontFamily="/WinsCode;component/Resources/Fonts/#D2Coding" Text="IPConfig" VerticalContentAlignment="Center" FontSize="16" Padding="4" TextOptions.TextHintingMode="Fixed" Background="{x:Null}"/>
+			</DockPanel>
+		</Grid>
 		<Border DockPanel.Dock="Top" Height="4" Background="#FF101415"></Border>
-		<TextBlock Name="OutputText" DockPanel.Dock="Bottom" Padding="8,4,8,0" Text="결과 출력 디스플레이" FontFamily="/WinsCode;component/Resources/Fonts/#D2Coding" Foreground="#FF9C9C9C" FontSize="14" TextOptions.TextHintingMode="Fixed">
-			<TextBlock.Background>
+		<Grid>
+			<Grid.Background>
 				<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
 					<GradientStop Color="#E5161C1F" Offset="0"/>
 					<GradientStop Color="#00080A0C" Offset="1"/>
 					<GradientStop Color="#B2111819" Offset="0.523"/>
 				</LinearGradientBrush>
-			</TextBlock.Background>
-		</TextBlock>
+			</Grid.Background>
+			<ScrollViewer Name="OutputScrollView" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">
+				<TextBlock Name="OutputTextView" DockPanel.Dock="Bottom" Width="{Binding ActualWidth, ElementName=OutputScrollView}" Padding="8,4,8,0" Text="디스플레이결과 출력" TextWrapping="Wrap" FontFamily="/WinsCode;component/Resources/Fonts/#D2Coding" Foreground="#FF9C9C9C" FontSize="14" TextOptions.TextHintingMode="Fixed">
+				</TextBlock>
+			</ScrollViewer>
+		</Grid>
 	</DockPanel>
 </Window>

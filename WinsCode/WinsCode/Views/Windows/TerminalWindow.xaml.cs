@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WinsCode.Plugins;
+using GKit;
 
 namespace WinsCode {
 	/// <summary>
@@ -19,19 +22,95 @@ namespace WinsCode {
 	/// </summary>
 	public partial class TerminalWindow : Window {
 
+		private Root root;
+		private GLoopEngine LoopEngine => root.loopEngine;
+		private CMDProcess cmdProc;
+		private StringBuilder outputBuilder;
+
 		public TerminalWindow() {
 			InitializeComponent();
-			Loaded += OnLoaded;
+			Init();
+		}
+		private void Init() {
+			root = new Root(this);
+			outputBuilder = new StringBuilder();
+			cmdProc = new CMDProcess();
+			cmdProc.Start();
+
+			UpdateWorkingDir();
+
+			ClearUI();
+			Test();
+			RegisterEvent();
+
+			void ClearUI() {
+				InputTextView.Text = "";
+				InputTextView.Focus();
+			}
+			void Test() {
+				Left = 0d;
+				Top = 0d;
+				Width = 1920d;
+
+				OutputTextView.Text = "결과 출력 디스플레이\nExecute...\n존-새 밥오.";
+
+				TestPlugin testPlugin = new TestPlugin();
+				root.pluginManager.registerPlugin(testPlugin);
+			}
+			void RegisterEvent() {
+				InputTextView.KeyDown += OnKeyDown_InputTextView;
+				cmdProc.OnOutputReceived += OnOutputReceived_CMDProc;
+			}
 		}
 
-		private void OnLoaded(object sender, RoutedEventArgs e) {
-			Left = 0d;
-			Top = 0d;
-			Width = 1920d;
+		private void OnKeyDown_InputTextView(object sender, KeyEventArgs e) {
+			if(e.Key == Key.Return) {
+				string input = InputTextView.Text;
 
-			OutputText.Text = "결과 출력 디스플레이\nExecute...\n존-새 밥오.";
+				
 
-			//
+				HandleCommand(input);
+				InputTextView.Text = "";
+
+				e.Handled = true;
+			}
+		}
+		private void OnOutputReceived_CMDProc(string text) {
+			WriteLine(text);
+		}
+		private void HandleCommand(string command) {
+			switch(command) {
+				case "exit":
+					Application.Current.Shutdown();
+					break;
+				default:
+					cmdProc.Write(command);
+					break;
+			}
+		}
+
+		public void Write(string text) {
+			LoopEngine.AddJob(() => {
+				outputBuilder.Append(text);
+
+				ApplyOutputTextView();
+			});
+		}
+		public void WriteLine(string text) {
+			LoopEngine.AddJob(() => {
+				outputBuilder.AppendLine(text);
+
+				ApplyOutputTextView();
+			});
+		}
+		private void ApplyOutputTextView() {
+			OutputTextView.Text = outputBuilder.ToString();
+			OutputScrollView.ScrollToEnd();
+			UpdateWorkingDir();
+		}
+
+		private void UpdateWorkingDir() {
+			WorkingDirTextView.Text = cmdProc.WorkingDirectory;
 		}
 	}
 }

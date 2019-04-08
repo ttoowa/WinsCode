@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace WinsCode.Plugins {
     public class PluginManager {
-        private Instance instance;
+        private TerminalWindow instance;
         private Dictionary<string, Plugin> pluginDict;
 
-        public PluginManager(Instance instance) {
+        public PluginManager(TerminalWindow instance) {
             this.instance = instance;
             pluginDict = new Dictionary<string, Plugin>();
         }
