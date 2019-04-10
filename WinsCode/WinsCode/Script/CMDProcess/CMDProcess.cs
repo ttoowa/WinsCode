@@ -6,27 +6,27 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using GKit;
+using GKit.Security;
 
 namespace WinsCode {
 	public class CMDProcess : IDisposable {
 		private Root Root => Root.Instance;
 		private TerminalWindow TerminalWindow => Root.terminalWindow;
 
-		public delegate void OnOutputReceivedDelegate(string text);
+		public delegate void OnOutputReceivedDelegate(string text, bool isError);
+		private const string WinsCodeCMDToken = "__WINSCODE_CMD";
 
 		public event OnOutputReceivedDelegate OnOutputReceived;
 		public bool IsRunning {
 			get; private set;
 		}
-		public string WorkingDirectory {
-			get {
-				return proc.StartInfo.WorkingDirectory;
-			}
-			set {
-				proc.StartInfo.WorkingDirectory = value;
-			}
-		}
+		public string workingDirectory;
 		public Process proc;
+
+		private SelfCmdType selfCmdType = SelfCmdType.None;
+		private int ignoreLineCount;
+
 
 		public CMDProcess() : this("cmd") {
 
@@ -49,9 +49,9 @@ namespace WinsCode {
 
 			void RegisterEvent() {
 				proc.OutputDataReceived += OnOutputReceived_Proc;
+				proc.ErrorDataReceived += OnErroeDataReceived_Proc;
 			}
 		}
-
 		public void Dispose() {
 			try {
 				Stop();
@@ -62,7 +62,40 @@ namespace WinsCode {
 		}
 
 		private void OnOutputReceived_Proc(object sender, DataReceivedEventArgs e) {
-			OnOutputReceived?.Invoke(e.Data);
+			if(!HandleReceivedSelfCmd(e.Data)) {
+				OnOutputReceived?.Invoke(e.Data, false);
+			}
+		}
+		private void OnErroeDataReceived_Proc(object sender, DataReceivedEventArgs e) {
+			OnOutputReceived?.Invoke(e.Data, true);
+		}
+		private bool HandleReceivedSelfCmd(string text) {
+			if (text == "") {
+				return true;
+			} else if (ignoreLineCount > 0) {
+				--ignoreLineCount;
+				return true;
+			} else if (text.Contains(WinsCodeCMDToken)) {
+				//입력 브로드캐스팅 무시
+				if (text.Contains("echo"))
+					return true;
+
+				string[] words = text.Split(' ');
+				if (words.Length > 2) {
+					int cmdTypeNum;
+					if (int.TryParse(words[1], out cmdTypeNum)) {
+						selfCmdType = (SelfCmdType)cmdTypeNum;
+						ignoreLineCount = 1;
+						return true;
+					}
+				}
+			} else if (selfCmdType != SelfCmdType.None) {
+				OnReceived_SelfCMD(selfCmdType, text);
+
+				selfCmdType = SelfCmdType.None;
+				return true;
+			}
+			return false;
 		}
 
 		public bool Start() {
@@ -72,6 +105,7 @@ namespace WinsCode {
 
 			proc.Start();
 			proc.BeginOutputReadLine();
+			proc.BeginErrorReadLine();
 
 			return true;
 		}
@@ -88,10 +122,30 @@ namespace WinsCode {
 		public void InitWorkingDir() {
 			proc.StartInfo.WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 		}
-
-		public void Write(string command) {
+		public void Execute(string command, bool updateWorkingDir = true) {
 			proc.StandardInput.WriteLine(command);
 			proc.StandardInput.Flush();
+
+			if(updateWorkingDir) {
+				UpdateWorkingDirectory();
+			}
+		}
+
+		//SelfCmd
+		public void UpdateWorkingDirectory() {
+			ExecuteSelfCMD(SelfCmdType.GetWorkingDirectory, "cd");
+		}
+
+		public void ExecuteSelfCMD(SelfCmdType type, string command) {
+			Execute($"echo {WinsCodeCMDToken} {((int)type).ToString()} {Environment.NewLine}{command}", type != SelfCmdType.GetWorkingDirectory);
+		}
+		private void OnReceived_SelfCMD(SelfCmdType type, string result) {
+			switch (type) {
+				case SelfCmdType.GetWorkingDirectory:
+					workingDirectory = result;
+					TerminalWindow.UpdateWorkingDir();
+					break;
+			}
 		}
 
 	}
