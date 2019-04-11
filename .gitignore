@@ -1,4 +1,10 @@
-.vs
+
+.idea/
+.vs/
+
 /WinsCode/WinsCode/LiveShare
 /WinsCode/WinsCode/bin
 /WinsCode/WinsCode/obj
+/WinsCode/WinsCode/publish
+
+*.pfx

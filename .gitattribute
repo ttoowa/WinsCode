@@ -1,0 +1,11 @@
+* text=auto
+* text eol=lf
+
+*.ai binary
+*.dll binary
+*.ico binary
+*.pdb binary
+*.pfx binary
+*.png binary
+*.ttf binary
+*.wav binary
