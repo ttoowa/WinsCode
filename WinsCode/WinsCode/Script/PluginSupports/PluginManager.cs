@@ -11,6 +11,10 @@ namespace WinsCode.Plugins {
             pluginDict = new Dictionary<string, Plugin>();
         }
 
+        public void initAllPlugin() {
+
+        }
+
         public void registerPlugin(Plugin plugin) {
             plugin.initialize(instance);
             pluginDict.Add(plugin.Name, plugin);

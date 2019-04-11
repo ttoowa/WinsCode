@@ -16,6 +16,7 @@
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -27,9 +28,8 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <AutorunEnabled>true</AutorunEnabled>
-    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationRevision>1</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -108,9 +108,14 @@
     <Compile Include="Script\CMDProcess\CMDProcess.cs" />
     <Compile Include="Script\CMDProcess\Element\SelfCmdType.cs" />
     <Compile Include="Script\PluginSupports\PluginDefinition.cs" />
+    <Compile Include="Script\Plugins\TestTest.cs" />
     <Compile Include="Script\Root.cs" />
     <Compile Include="Script\PluginSupports\PluginManager.cs" />
     <Compile Include="Script\Plugins\TestPlugin.cs" />
+    <Compile Include="Script\SubSystem\AutoComplete\AutoCompleteContext.cs" />
+    <Compile Include="Script\SubSystem\AutoComplete\AutoCompleteManager.cs" />
+    <Compile Include="Script\SubSystem\AutoComplete\AutoCompleter.cs" />
+    <Compile Include="Script\SubSystem\AutoComplete\AutoCompleteSet.cs" />
     <Compile Include="Script\System\AppInfo.cs" />
     <Compile Include="Script\System\TrayIcon.cs" />
     <Compile Include="Views\Windows\TerminalWindow.xaml.cs">
@@ -165,6 +170,9 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Script\SubSystem\Plugin\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.4.0.2\build\Fody.targets" Condition="Exists('..\packages\Fody.4.0.2\build\Fody.targets')" />

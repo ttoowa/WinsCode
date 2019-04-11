@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using WinsCode.Plugins;
+using WinsCode.SubSystem.AutoComplete;
 using GKit;
 
 namespace WinsCode {
@@ -19,15 +20,17 @@ namespace WinsCode {
 		public TerminalWindow terminalWindow;
 		public PluginManager pluginManager;
 		public TrayIconManager trayIconManager;
+        public AutoCompleteManager autoCompleteManager;
 
 		public Root(TerminalWindow terminalWindow) {
 			Instance = this;
 			this.terminalWindow = terminalWindow;
 			loopEngine = new GLoopEngine();
 			pluginManager = new PluginManager(terminalWindow);
+            autoCompleteManager = new AutoCompleteManager(terminalWindow);
 			trayIconManager = new TrayIconManager();
 
-			loopEngine.StartLoop();
+            loopEngine.StartLoop();
 			loopEngine.AddLoopAction(OnTick);
 
 		}

@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using WinsCode.Plugins;
+using WinsCode.SubSystem.AutoComplete;
 using GKit;
 
 namespace WinsCode {
@@ -23,9 +24,13 @@ namespace WinsCode {
 	/// </summary>
 	public partial class TerminalWindow : Window {
 
+        public string WorkingDirectory { get { return cmdProc.workingDirectory; } }
+        public string Input { get { return InputTextView.Text; } }
+
 		private Root root;
 		private GLoopEngine LoopEngine => root.loopEngine;
 		private CMDProcess cmdProc;
+        private AutoCompleteSet autoCompleteSet = null;
 		private StringBuilder outputBuilder;
 		public bool IsOpened => Visibility == Visibility.Visible;
 		//FX
@@ -46,7 +51,7 @@ namespace WinsCode {
 			UpdateWorkingDir();
 
 			ClearUI();
-			//Test();
+			Test();
 			UpdateResolution();
 			RegisterEvent();
 			cmdProc.UpdateWorkingDirectory();
@@ -56,17 +61,18 @@ namespace WinsCode {
 				InputTextView.Focus();
 			}
 			void Test() {
-				Left = 0d;
-				Top = 0d;
-				Width = 1920d;
+                //Left = 0d;
+                //Top = 0d;
+                //Width = 1920d;
 
-				OutputTextView.Text = "결과 출력 디스플레이\nExecute...\n존-새 밥오.";
+                //OutputTextView.Text = "결과 출력 디스플레이\nExecute...\n존-새 밥오.";
 
-				TestPlugin testPlugin = new TestPlugin();
-				root.pluginManager.registerPlugin(testPlugin);
+                TestPlugin testPlugin = new TestPlugin();
+                root.pluginManager.registerPlugin(testPlugin);
 			}
 			void RegisterEvent() {
 				InputTextView.KeyDown += OnKeyDown_InputTextView;
+                InputTextView.PreviewKeyDown += OnPreviewKeyDown_InputTextView;
 				cmdProc.OnOutputReceived += OnOutputReceived_CMDProc;
 				InputContext.MouseDown += OnMouseDown_InputContext;
 				Closing += OnClosing;
@@ -75,9 +81,7 @@ namespace WinsCode {
 			}
 		}
 
-
-
-		private void OnTick() {
+        private void OnTick() {
 			const float FadeDelta = 0.003f;
 
 			if(fxAlpha > 0f) {
@@ -100,18 +104,34 @@ namespace WinsCode {
 		private void OnMouseDown_InputContext(object sender, MouseButtonEventArgs e) {
 			InputTextView.Focus();
 		}
+        private void OnPreviewKeyDown_InputTextView(object sender, KeyEventArgs e) {
+            if (e.Key != Key.Tab)
+                autoCompleteSet = null;
+        }
 		private void OnKeyDown_InputTextView(object sender, KeyEventArgs e) {
+            if (e.Key != Key.Tab)
+                autoCompleteSet = null;
+
 			switch (e.Key) {
 				case Key.Return:
 					string input = InputTextView.Text;
 
 					HandleCommand(input);
-					InputTextView.Text = "";
+					InputTextView.Text = string.Empty;
 					FireFX();
 
 					e.Handled = true;
 					break;
 				case Key.Tab:
+                    if (autoCompleteSet == null) {
+                        autoCompleteSet = root.autoCompleteManager.GetAutoCompleteSet();
+                    }
+
+                    if (autoCompleteSet != null) {
+                        InputTextView.Text = autoCompleteSet.Context.Input + autoCompleteSet.Next;
+                        InputTextView.CaretIndex = InputTextView.Text.Length;
+                    }
+
 					e.Handled = true;
 					break;
 			}
