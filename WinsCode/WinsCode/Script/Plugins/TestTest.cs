@@ -18,25 +18,32 @@ namespace WinsCode.Plugins
         public AutoCompleteSet GetAutoCompleteSet(AutoCompleteContext context)
         {
             try {
-                string prefix = context.Input;
+                string input = context.Input;
 
+                //Get last black space substring of the input.
                 for (int index = context.Input.Length - 1; index >= 0; --index)
                     if (char.IsWhiteSpace(context.Input, index)) {
-                        prefix = context.Input.Substring(index + 1);
+                        input = context.Input.Substring(index + 1);
                         break;
                     }
 
-                List<string> list = new List<string>();
-                DirectoryInfo dir = new DirectoryInfo(context.WorkingDirectory);
+                var prefix = Path.GetFileName(input);
+                var rootPath = Path.GetDirectoryName(Path.Combine(context.WorkingDirectory + '/', input));
+                var root = new DirectoryInfo(rootPath.Length == 0 ? Path.Combine(context.WorkingDirectory + '/', input) : rootPath);
 
-                foreach (var file in dir.GetFiles())
-                    if (file.Name.StartsWith(prefix))
-                        list.Add(file.Name.Substring(prefix.Length));
+                var files = from file in root.GetFiles()
+                            where file.Name.StartsWith(prefix)
+                            select file.Name.Substring(prefix.Length);
 
-                foreach (var subdir in dir.GetDirectories())
-                    if (subdir.Name.StartsWith(prefix))
-                        list.Add(subdir.Name.Substring(prefix.Length));
+                var dirs = from dir in root.GetDirectories()
+                           where dir.Name.StartsWith(prefix)
+                           select dir.Name.Substring(prefix.Length);
 
+                var list = files.Concat(dirs).ToList();
+
+                if (files.Count() == 0 && dirs.Count() == 1)
+                    list[0] += '/';
+                
                 return new AutoCompleteSet(context, list);
 
             } catch {

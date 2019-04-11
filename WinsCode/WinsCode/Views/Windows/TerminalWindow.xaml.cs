@@ -130,6 +130,9 @@ namespace WinsCode {
                     if (autoCompleteSet != null) {
                         InputTextView.Text = autoCompleteSet.Context.Input + autoCompleteSet.Next;
                         InputTextView.CaretIndex = InputTextView.Text.Length;
+
+                        if (autoCompleteSet.Length == 1)
+                            autoCompleteSet = null;
                     }
 
 					e.Handled = true;

@@ -6,6 +6,11 @@ namespace WinsCode.SubSystem.AutoComplete
     public class AutoCompleteSet
     {
         public AutoCompleteContext Context { get; private set; }
+        public int Length {
+            get {
+                return autoCompleteSet.Count;
+            }
+        }
         public string Next {
             get {
                 return enumerator.MoveNext() ? enumerator.Current : null;
