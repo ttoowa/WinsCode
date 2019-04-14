@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 namespace WinsCode.Plugins {
     public class TestPlugin : Plugin
     {
+		private static Root Root => Root.Instance;
+		private static TerminalWindow TerminalWindow => Root.terminalWindow;
         public override string Name => "Test plugin";
 
         public override PluginVersion Version => new PluginVersion(1, 0, 0, 1);
@@ -16,9 +18,9 @@ namespace WinsCode.Plugins {
         }
 
         public override bool initialize(TerminalWindow instance) {
-            //instance.WriteLine(string.Format("Initializing {0} v{1}...", Name, Version));
+			//instance.WriteLine(string.Format("Initializing {0} v{1}...", Name, Version));
 
-            Root.Instance.autoCompleteManager.RegisterAutoCompleter(new TestTest());
+			TerminalWindow.autoCompleteManager.RegisterAutoCompleter(new TestTest());
 
             return true;
         }

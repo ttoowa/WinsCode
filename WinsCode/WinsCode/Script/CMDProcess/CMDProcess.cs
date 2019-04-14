@@ -127,15 +127,37 @@ namespace WinsCode {
 			proc.StandardInput.Flush();
 
 			if(updateWorkingDir) {
-				UpdateWorkingDirectory();
+				ExecuteUpdateWorkingDirectory();
+			}
+		}
+
+		public string GetChildProcessName() {
+			StringBuilder builder = new StringBuilder();
+			Process[] childProcs = ProcessUtility.GetChildProcesses(proc);
+			if(childProcs.Length >= 2) {
+				FindChildProc(childProcs[1]);
+				return builder.ToString();
+			} else {
+				return null;
+			}
+
+			void FindChildProc(Process proc) {
+				Process[] subChildProcs = ProcessUtility.GetChildProcesses(proc);
+				if(subChildProcs.Length >= 1) {
+					Process childProc = subChildProcs[0];
+					builder.Append(' ');
+					builder.Append(childProc.ProcessName);
+					builder.Append('>');
+
+					FindChildProc(childProc);
+				}
 			}
 		}
 
 		//SelfCmd
-		public void UpdateWorkingDirectory() {
+		public void ExecuteUpdateWorkingDirectory() {
 			ExecuteSelfCMD(SelfCmdType.GetWorkingDirectory, "cd");
 		}
-
 		public void ExecuteSelfCMD(SelfCmdType type, string command) {
 			Execute($"echo {WinsCodeCMDToken} {((int)type).ToString()} {Environment.NewLine}{command}", type != SelfCmdType.GetWorkingDirectory);
 		}

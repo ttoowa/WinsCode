@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
@@ -24,15 +25,21 @@ namespace WinsCode {
 	/// </summary>
 	public partial class TerminalWindow : Window {
 
-        public string WorkingDirectory { get { return cmdProc.workingDirectory; } }
+        public string WorkingDirectory { get { return CmdProc.workingDirectory; } }
         public string Input { get { return InputTextView.Text; } }
 
 		private Root root;
 		private GLoopEngine LoopEngine => root.loopEngine;
-		private CMDProcess cmdProc;
-        private AutoCompleteSet autoCompleteSet = null;
+		public CMDProcess CmdProc {
+			get; private set;
+		}
 		private StringBuilder outputBuilder;
+		public AutoCompleteManager autoCompleteManager;
+		private AutoCompleteSet autoCompleteSet = null;
 		public bool IsOpened => Visibility == Visibility.Visible;
+		public IntPtr Handle {
+			get; private set;
+		}
 		//FX
 		private float fxAlpha;
 		private SoundPlayer soundPlayer;
@@ -40,22 +47,33 @@ namespace WinsCode {
 		public TerminalWindow() {
 			InitializeComponent();
 			Init();
+			Loaded += OnLoaded;
 		}
+
+
 		private void Init() {
 			root = new Root(this);
 			outputBuilder = new StringBuilder();
+			autoCompleteManager = new AutoCompleteManager(this);
 			soundPlayer = new SoundPlayer(Properties.Resources.Keyboard_EnterClick);
-			cmdProc = new CMDProcess();
-			cmdProc.Start();
+			CmdProc = new CMDProcess();
+			CmdProc.Start();
+			
 
 			UpdateWorkingDir();
 
+			FindHandle();
 			ClearUI();
 			Test();
 			UpdateResolution();
 			RegisterEvent();
-			cmdProc.UpdateWorkingDirectory();
+			CmdProc.ExecuteUpdateWorkingDirectory();
 
+			void FindHandle() {
+				Window window = Window.GetWindow(this);
+				var wih = new WindowInteropHelper(window);
+				Handle = wih.Handle;
+			}
 			void ClearUI() {
 				InputTextView.Text = "";
 				InputTextView.Focus();
@@ -73,7 +91,7 @@ namespace WinsCode {
 			void RegisterEvent() {
 				InputTextView.KeyDown += OnKeyDown_InputTextView;
                 InputTextView.PreviewKeyDown += OnPreviewKeyDown_InputTextView;
-				cmdProc.OnOutputReceived += OnOutputReceived_CMDProc;
+				CmdProc.OnOutputReceived += OnOutputReceived_CMDProc;
 				InputContext.MouseDown += OnMouseDown_InputContext;
 				Closing += OnClosing;
 
@@ -92,6 +110,9 @@ namespace WinsCode {
 				color.A = (byte)(fxAlpha * BMath.Float2Byte);
 				FXCover.Background = new SolidColorBrush(color);
 			}
+		}
+		private void OnLoaded(object sender, RoutedEventArgs e) {
+			SetOpened(false);
 		}
 		private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e) {
 			if (!root.exitSwitch) {
@@ -124,7 +145,7 @@ namespace WinsCode {
 					break;
 				case Key.Tab:
                     if (autoCompleteSet == null) {
-                        autoCompleteSet = root.autoCompleteManager.GetAutoCompleteSet();
+                        autoCompleteSet = autoCompleteManager.GetAutoCompleteSet();
                     }
 
                     if (autoCompleteSet != null) {
@@ -149,18 +170,20 @@ namespace WinsCode {
 
 			soundPlayer.Play();
 		}
-
+		
 		public void SetOpened(bool open) {
 			Visibility = open ? Visibility.Visible : Visibility.Collapsed;
-
+			
 			if(open) {
 				SetForeground();
-				InputTextView.Focus();
 			}
 		}
-		private void SetForeground() {
+		private async void SetForeground() {
 			Topmost = false;
 			Topmost = true;
+			WinAPI.ShowWindow(Handle, 5);
+
+			InputTextView.Focus();
 		}
 		private void UpdateResolution() {
 			System.Windows.Forms.Screen screen = ScreenInfo.MainScreen;
@@ -180,7 +203,7 @@ namespace WinsCode {
 					Clear();
 					break;
 				default:
-					cmdProc.Execute(command);
+					CmdProc.Execute(command);
 					break;
 			}
 		}
@@ -213,8 +236,16 @@ namespace WinsCode {
 		}
 
 		public void UpdateWorkingDir() {
+			//string displayHead;
+
+			//string childProcName = CmdProc.GetChildProcessName();
+			//if (childProcName == null) {
+			//	displayHead = $"{CmdProc.workingDirectory}>";
+			//} else {
+			//	displayHead = childProcName;
+			//}
 			WorkingDirTextView.Dispatcher.BeginInvoke(new Action(() => {
-				WorkingDirTextView.Text = cmdProc.workingDirectory;
+				WorkingDirTextView.Text = $"{CmdProc.workingDirectory}>";
 			}));
 		}
 	}
