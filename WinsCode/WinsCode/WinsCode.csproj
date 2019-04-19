@@ -119,6 +119,7 @@
     <Compile Include="Script\SubSystem\AutoComplete\AutoCompleteSet.cs" />
     <Compile Include="Script\System\AppInfo.cs" />
     <Compile Include="Script\System\ProcessUtility.cs" />
+    <Compile Include="Script\System\RecentCmdManager.cs" />
     <Compile Include="Script\System\TrayIcon.cs" />
     <Compile Include="Script\System\WinAPI.cs" />
     <Compile Include="Views\Windows\TerminalWindow.xaml.cs">

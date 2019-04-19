@@ -33,8 +33,8 @@
 	<DockPanel>
 		<Grid Name="InputContext" DockPanel.Dock="Top" Background="#FF485D66" Cursor="IBeam">
 			<DockPanel Margin="4" Background="#FF283942">
-				<TextBox Name="WorkingDirTextView" Text="C:\실행경로>" BorderThickness="0" FontFamily="/WinsCode;component/Resources/Fonts/#D2Coding" Foreground="#FF0D8D89" FontSize="16" VerticalAlignment="Center" Margin="8,0,0,0" Background="{x:Null}" BorderBrush="{x:Null}" SelectionBrush="#B2006287" IsReadOnly="True"></TextBox>
-				<TextBox Name="InputTextView" Height="35" BorderThickness="0" BorderBrush="{x:Null}" Foreground="#FF14FFF8" SelectionBrush="#B2006287" FontFamily="/WinsCode;component/Resources/Fonts/#D2Coding" Text="IPConfig" VerticalContentAlignment="Center" FontSize="16" Padding="4" TextOptions.TextHintingMode="Fixed" Background="{x:Null}"/>
+				<TextBox Name="WorkingDirTextView" Text="C:\실행경로>" BorderThickness="0" FontFamily="/WinsCode;component/Resources/Fonts/#D2Coding" Foreground="#FF0D8D89" FontSize="16" VerticalAlignment="Center" Margin="8,0,0,0" Background="{x:Null}" BorderBrush="{x:Null}" SelectionBrush="#B2E6E6E6" IsReadOnly="True"></TextBox>
+				<TextBox Name="InputEditText" Height="35" BorderThickness="0" BorderBrush="{x:Null}" Foreground="#FF14FFF8" SelectionBrush="#B2E6E6E6" FontFamily="/WinsCode;component/Resources/Fonts/#D2Coding" Text="IPConfig" VerticalContentAlignment="Center" FontSize="16" Padding="4" TextOptions.TextHintingMode="Fixed" Background="{x:Null}"/>
 			</DockPanel>
 			<Border Name="FXCover"></Border>
 		</Grid>
@@ -48,7 +48,7 @@
 				</LinearGradientBrush>
 			</Grid.Background>
 			<ScrollViewer Name="OutputScrollView" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">
-				<TextBox Name="OutputTextView" DockPanel.Dock="Bottom" Width="{Binding ActualWidth, ElementName=OutputScrollView}" Padding="8,4,8,0" BorderThickness="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" Text="디스플레이결과 출력" TextWrapping="Wrap" FontFamily="/WinsCode;component/Resources/Fonts/#D2Coding" Foreground="#FF9C9C9C" FontSize="14" TextOptions.TextHintingMode="Fixed" Background="{x:Null}" IsReadOnly="True" SelectionBrush="#4C00A6D7">
+				<TextBox Name="OutputTextView" DockPanel.Dock="Bottom" Width="{Binding ActualWidth, ElementName=OutputScrollView}" Padding="8,4,8,0" BorderThickness="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" Text="디스플레이결과 출력" TextWrapping="Wrap" FontFamily="/WinsCode;component/Resources/Fonts/#D2Coding" Foreground="#FFC5C5C5" FontSize="14" TextOptions.TextHintingMode="Fixed" Background="{x:Null}" IsReadOnly="True" SelectionBrush="#B2E6E6E6">
 				</TextBox>
 			</ScrollViewer>
 		</Grid>

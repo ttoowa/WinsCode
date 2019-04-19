@@ -25,8 +25,8 @@ namespace WinsCode {
 	/// </summary>
 	public partial class TerminalWindow : Window {
 
-        public string WorkingDirectory { get { return CmdProc.workingDirectory; } }
-        public string Input { get { return InputTextView.Text; } }
+		public string WorkingDirectory { get { return CmdProc.workingDirectory; } }
+		public string Input { get { return InputEditText.Text; } }
 
 		private Root root;
 		private GLoopEngine LoopEngine => root.loopEngine;
@@ -35,7 +35,8 @@ namespace WinsCode {
 		}
 		private StringBuilder outputBuilder;
 		public AutoCompleteManager autoCompleteManager;
-		private AutoCompleteSet autoCompleteSet = null;
+		private AutoCompleteSet autoCompleteSet;
+		private RecentCmdManager recentCmdManager;
 		public bool IsOpened => Visibility == Visibility.Visible;
 		public IntPtr Handle {
 			get; private set;
@@ -55,18 +56,16 @@ namespace WinsCode {
 			root = new Root(this);
 			outputBuilder = new StringBuilder();
 			autoCompleteManager = new AutoCompleteManager(this);
+			recentCmdManager = new RecentCmdManager();
 			soundPlayer = new SoundPlayer(Properties.Resources.Keyboard_EnterClick);
 			CmdProc = new CMDProcess();
-			CmdProc.Start();
-			
-
-			UpdateWorkingDir();
 
 			FindHandle();
-			ClearUI();
-			Test();
+			ClearInput();
+			LoadPlugin();
 			UpdateResolution();
 			RegisterEvent();
+
 			CmdProc.ExecuteUpdateWorkingDirectory();
 
 			void FindHandle() {
@@ -74,23 +73,23 @@ namespace WinsCode {
 				var wih = new WindowInteropHelper(window);
 				Handle = wih.Handle;
 			}
-			void ClearUI() {
-				InputTextView.Text = "";
-				InputTextView.Focus();
+			void ClearInput() {
+				InputEditText.Text = "";
+				InputEditText.Focus();
 			}
-			void Test() {
-                //Left = 0d;
-                //Top = 0d;
-                //Width = 1920d;
+			void LoadPlugin() {
+				//Left = 0d;
+				//Top = 0d;
+				//Width = 1920d;
 
-                //OutputTextView.Text = "결과 출력 디스플레이\nExecute...\n존-새 밥오.";
+				//OutputTextView.Text = "결과 출력 디스플레이\nExecute...\n존-새 밥오.";
 
-                TestPlugin testPlugin = new TestPlugin();
-                root.pluginManager.registerPlugin(testPlugin);
+				TestPlugin testPlugin = new TestPlugin();
+				root.pluginManager.registerPlugin(testPlugin);
 			}
 			void RegisterEvent() {
-				InputTextView.KeyDown += OnKeyDown_InputTextView;
-                InputTextView.PreviewKeyDown += OnPreviewKeyDown_InputTextView;
+				InputEditText.KeyDown += OnKeyDown_InputEditText;
+				InputEditText.PreviewKeyDown += OnPreviewKeyDown_InputEditText;
 				CmdProc.OnOutputReceived += OnOutputReceived_CMDProc;
 				InputContext.MouseDown += OnMouseDown_InputContext;
 				Closing += OnClosing;
@@ -99,10 +98,10 @@ namespace WinsCode {
 			}
 		}
 
-        private void OnTick() {
+		private void OnTick() {
 			const float FadeDelta = 0.003f;
 
-			if(fxAlpha > 0f) {
+			if (fxAlpha > 0f) {
 				fxAlpha = Mathf.Clamp01(fxAlpha - FadeDelta);
 
 				Color color = new Color();
@@ -123,38 +122,54 @@ namespace WinsCode {
 			}
 		}
 		private void OnMouseDown_InputContext(object sender, MouseButtonEventArgs e) {
-			InputTextView.Focus();
+			InputEditText.Focus();
+			e.Handled = false;
 		}
-        private void OnPreviewKeyDown_InputTextView(object sender, KeyEventArgs e) {
-            if (e.Key != Key.Tab)
-                autoCompleteSet = null;
-        }
-		private void OnKeyDown_InputTextView(object sender, KeyEventArgs e) {
-            if (e.Key != Key.Tab)
-                autoCompleteSet = null;
+		private void OnPreviewKeyDown_InputEditText(object sender, KeyEventArgs e) {
+			if (e.Key != Key.Tab)
+				autoCompleteSet = null;
+
+			switch (e.Key) {
+				case Key.Up:
+					recentCmdManager.AddPointer(1);
+					ApplyRecentInputCmd();
+
+					e.Handled = true;
+					break;
+				case Key.Down:
+					recentCmdManager.AddPointer(-1);
+					ApplyRecentInputCmd();
+
+					e.Handled = true;
+					break;
+			}
+		}
+		private void OnKeyDown_InputEditText(object sender, KeyEventArgs e) {
+			if (e.Key != Key.Tab)
+				autoCompleteSet = null;
 
 			switch (e.Key) {
 				case Key.Return:
-					string input = InputTextView.Text;
+					string input = InputEditText.Text;
 
 					HandleCommand(input);
-					InputTextView.Text = string.Empty;
+					InputEditText.Text = string.Empty;
 					FireFX();
 
 					e.Handled = true;
 					break;
 				case Key.Tab:
-                    if (autoCompleteSet == null) {
-                        autoCompleteSet = autoCompleteManager.GetAutoCompleteSet();
-                    }
+					if (autoCompleteSet == null) {
+						autoCompleteSet = autoCompleteManager.GetAutoCompleteSet();
+					}
 
-                    if (autoCompleteSet != null) {
-                        InputTextView.Text = autoCompleteSet.Context.Input + autoCompleteSet.Next;
-                        InputTextView.CaretIndex = InputTextView.Text.Length;
+					if (autoCompleteSet != null) {
+						InputEditText.Text = autoCompleteSet.Context.Input + autoCompleteSet.Next;
+						InputEditText.CaretIndex = InputEditText.Text.Length;
 
-                        if (autoCompleteSet.Length == 1)
-                            autoCompleteSet = null;
-                    }
+						if (autoCompleteSet.Length == 1)
+							autoCompleteSet = null;
+					}
 
 					e.Handled = true;
 					break;
@@ -170,11 +185,11 @@ namespace WinsCode {
 
 			soundPlayer.Play();
 		}
-		
+
 		public void SetOpened(bool open) {
 			Visibility = open ? Visibility.Visible : Visibility.Collapsed;
-			
-			if(open) {
+
+			if (open) {
 				SetForeground();
 			}
 		}
@@ -183,7 +198,7 @@ namespace WinsCode {
 			Topmost = true;
 			WinAPI.ShowWindow(Handle, 5);
 
-			InputTextView.Focus();
+			InputEditText.Focus();
 		}
 		private void UpdateResolution() {
 			System.Windows.Forms.Screen screen = ScreenInfo.MainScreen;
@@ -197,11 +212,13 @@ namespace WinsCode {
 			if (cmds.Length == 0)
 				return;
 
+			recentCmdManager.AddCommand(command);
+			recentCmdManager.SetPointToCurrent();
 			switch (cmds[0].ToLower()) {
-				case "exit":
-					SetOpened(false);
-					Clear();
-					break;
+				//case "exit":
+				//	SetOpened(false);
+				//	Clear();
+				//	break;
 				default:
 					CmdProc.Execute(command);
 					break;
@@ -234,16 +251,25 @@ namespace WinsCode {
 			OutputScrollView.ScrollToEnd();
 			UpdateWorkingDir();
 		}
+		private void ApplyRecentInputCmd() {
+			if (!recentCmdManager.IsPointingCurrent) {
+				InputEditText.Text = recentCmdManager.GetCommand();
+			}
+		}
 
 		public void UpdateWorkingDir() {
 			//string displayHead;
 
 			//string childProcName = CmdProc.GetChildProcessName();
 			//if (childProcName == null) {
-			//	displayHead = $"{CmdProc.workingDirectory}>";
+			//	displayHead = CmdProc.workingDirectory;
 			//} else {
 			//	displayHead = childProcName;
 			//}
+			//displayHead += ">";
+			//WorkingDirTextView.Dispatcher.BeginInvoke(new Action(() => {
+			//	WorkingDirTextView.Text = displayHead;
+			//}));
 			WorkingDirTextView.Dispatcher.BeginInvoke(new Action(() => {
 				WorkingDirTextView.Text = $"{CmdProc.workingDirectory}>";
 			}));

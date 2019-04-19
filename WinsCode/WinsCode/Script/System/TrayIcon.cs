@@ -36,7 +36,7 @@ namespace WinsCode {
 		}
 
 		private void OnDoubleClick() {
-			TerminalWindow.SetOpened(true);
+			TerminalWindow.SetOpened(!TerminalWindow.IsOpened);
 		}
 		private void OnClick_OpenTerminal() {
 			TerminalWindow.SetOpened(true);

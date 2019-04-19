@@ -23,6 +23,7 @@ namespace WinsCode {
 		}
 		public string workingDirectory;
 		public Process proc;
+        private string fileName;
 
 		private SelfCmdType selfCmdType = SelfCmdType.None;
 		private int ignoreLineCount;
@@ -32,27 +33,38 @@ namespace WinsCode {
 
 		}
 		public CMDProcess(string fileName) {
-			proc = new Process();
-			ProcessStartInfo startInfo = new ProcessStartInfo();
+            this.fileName = fileName;
 
-			startInfo.FileName = fileName;
-			startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-			startInfo.CreateNoWindow = true;
-			startInfo.UseShellExecute = false;
-			startInfo.RedirectStandardInput = true;
-			startInfo.RedirectStandardOutput = true;
-			startInfo.RedirectStandardError = true;
+            Init();
+        }
+        public void Init()
+        {
+            proc = new Process();
+            
+            ProcessStartInfo startInfo = new ProcessStartInfo();
 
-			proc.StartInfo = startInfo;
-			InitWorkingDir();
-			RegisterEvent();
+            startInfo.FileName = fileName;
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            startInfo.CreateNoWindow = true;
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardInput = true;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.RedirectStandardError = true;
+            proc.StartInfo = startInfo;
+			proc.EnableRaisingEvents = true;
+            InitWorkingDir();
+            RegisterEvent();
+            Start();
 
-			void RegisterEvent() {
-				proc.OutputDataReceived += OnOutputReceived_Proc;
-				proc.ErrorDataReceived += OnErroeDataReceived_Proc;
-			}
-		}
-		public void Dispose() {
+            void RegisterEvent()
+            {
+                proc.Exited += OnExited_Proc;
+                proc.OutputDataReceived += OnOutputReceived_Proc;
+                proc.ErrorDataReceived += OnErroeDataReceived_Proc;
+            }
+        }
+
+        public void Dispose() {
 			try {
 				Stop();
 
@@ -61,7 +73,14 @@ namespace WinsCode {
 			}
 		}
 
-		private void OnOutputReceived_Proc(object sender, DataReceivedEventArgs e) {
+        private void OnExited_Proc(object sender, EventArgs e)
+        {
+            //캐치 안됨
+			IsRunning = false;
+			TerminalWindow.Clear();
+			Init();
+        }
+        private void OnOutputReceived_Proc(object sender, DataReceivedEventArgs e) {
 			if(!HandleReceivedSelfCmd(e.Data)) {
 				OnOutputReceived?.Invoke(e.Data, false);
 			}
@@ -70,7 +89,7 @@ namespace WinsCode {
 			OnOutputReceived?.Invoke(e.Data, true);
 		}
 		private bool HandleReceivedSelfCmd(string text) {
-			if (text == "") {
+			if (string.IsNullOrEmpty(text)) {
 				return true;
 			} else if (ignoreLineCount > 0) {
 				--ignoreLineCount;
